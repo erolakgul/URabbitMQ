@@ -29,4 +29,6 @@ var messageBody = Encoding.UTF8.GetBytes(message);
 // body byte olarak tanımlı gönderilecek olan bilgi
 channel.BasicPublish(exchange: string.Empty, routingKey: "test-1", basicProperties: null,body:messageBody);
 
+Console.WriteLine($"Gönderilen mesaj :{message}");
+
 Console.ReadLine();
