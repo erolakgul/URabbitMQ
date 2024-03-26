@@ -8,19 +8,26 @@ factory.Uri = new Uri("amqps://ysynpygm:vY1Dp4qZ437uU3Dojt0nnY9-FFKb8H8G@toad.rm
 using var connection = factory.CreateConnection();
 var channel = connection.CreateModel();
 
-//channel.QueueDeclare(queue: "test-1", durable: true, exclusive: false, autoDelete: false);
+// prefetchSize : 0 olursa herhangi bir size daki bilgiyi alabilir demek
+// prefetchCount: alınacak bilgi sayısı
+// global       : false olursa prefetchCount bilgisi ne ise tüm alıcılara o kadar bilgi gider
+// true ise, prefetchCount bilgisi / alıcı sayısı olacak şekilde her bir alıcıya o kadar bilgi gider
+// örneğin count 6, alıcı sayısı da 2 ise her bir alıcıya 3 veri gider
+channel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
 
-// alıcı taraf için 
 var consumer = new EventingBasicConsumer(channel);
-// queue kuyruk ismi
-// autoAck true olursa, mesaj alındığında direkt siler,false dersek subscriber lardan haber bekler silmesi için, grrçek dünyada false a set edilr
-// consumer kanala ait alıcının bilgisi
-channel.BasicConsume(queue: "test-1", autoAck: true,consumer:consumer);
+// autoAck parametresi false a set edildi. haberdar edildiğinde kuyruktaki mesaj silinsin isteniyor artık
+channel.BasicConsume(queue: "test-1", autoAck: false,consumer:consumer);
 
 consumer.Received +=
     (sender, args) =>
     {
         var msg = Encoding.UTF8.GetString(args.Body.ToArray());
         Console.WriteLine($"Gelen Mesaj : {msg}");
+        Thread.Sleep(1500);
+        //deliveryTag silinecek olan tag ismi
+        //multiple true ise memory de işlenmemiş ama rabibitmq ya gitmemiş tag leri de sil
+        // false olursa sadece ilgili mesajın durumunu rabbit e bildir
+        channel.BasicAck(deliveryTag: args.DeliveryTag, multiple: false);
     };
 Console.ReadLine();
