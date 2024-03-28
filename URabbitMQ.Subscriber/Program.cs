@@ -1,6 +1,8 @@
 ﻿using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
+using System.Text.Json;
+using URabbitMQ.Shared.Dtos;
 
 var factory = new ConnectionFactory();
 factory.Uri = new Uri("amqps://ysynpygm:vY1Dp4qZ437uU3Dojt0nnY9-FFKb8H8G@toad.rmq.cloudamqp.com/ysynpygm");
@@ -34,7 +36,9 @@ consumer.Received +=
     (sender, args) =>
     {
         var msg = Encoding.UTF8.GetString(args.Body.ToArray());
-        Console.WriteLine($"Gelen Mesaj : {msg}");
+        Product product = JsonSerializer.Deserialize<Product>(msg);
+
+        Console.WriteLine($"Gelen Mesaj : {product.Name} - {product.Price} - {product.AvailableStock}");
         Thread.Sleep(1500);
 
         //deliveryTag silinecek olan tag ismi
