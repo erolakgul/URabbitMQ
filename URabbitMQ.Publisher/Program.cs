@@ -20,6 +20,9 @@ keyValuePairs.Add("shape","a4");
 var properties = channel.CreateBasicProperties();
 properties.Headers = keyValuePairs;
 
+/// mesajların kalıcı hale gelmesi için Persistent property si true olarak setlenmeli
+properties.Persistent = true;
+
 var msg = Encoding.UTF8.GetBytes("selam bu bir a4 pdf idir.");
 
 channel.BasicPublish(exchange: exhangeName, routingKey: string.Empty,mandatory:false, basicProperties: properties, body: msg);
