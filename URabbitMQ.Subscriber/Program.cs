@@ -9,15 +9,19 @@ using var connection = factory.CreateConnection();
 var channel = connection.CreateModel();
 
 // exchange ismi
-string exhangeName = "log-topic";
+string exhangeName = "exhange-header";
 // random kuyruk ismi alınır, birden fazla instance çalıştırılacak
 var queueName = channel.QueueDeclare().QueueName;
-// dinlemek istediğimiz routkey pattern ini belirtiyoruz
-string routeKeyPatter = "*.Error.*"; // ortasında .Error. olanlara eriş
+
+// dinlemek istediğimiz exchange in header ını belrtiyoruz
+Dictionary<string, object> keyValuePairs = new();
+keyValuePairs.Add("format", "pdf");
+keyValuePairs.Add("shape", "a4");
+keyValuePairs.Add("x-match", "all");
 
 // bind edeceğiz, yani subs düştüğünde kuyruk da otomatik olarak dşsün istioyrz.
 // deklare edersek subs kapansa bile kuyruk kalmaya devam eder
-channel.QueueBind(queue: queueName, exchange: exhangeName, routingKey: routeKeyPatter, arguments: null);
+channel.QueueBind(queue: queueName, exchange: exhangeName, routingKey: "", arguments: keyValuePairs);
 
 var consumer = new EventingBasicConsumer(channel);
 
